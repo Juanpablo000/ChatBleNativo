@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">ChatBleNativo</string>
+    <string name="str_label_btn_enviar">Enviar</string>
+    <string name="str_menu_buscar_dispositivos">Buscar dispositivos</string>
+    <string name="str_menu_bluetooth_on">Encender bluetooth</string>
+    
+    <string name="str_dispositivos_emparejados">Dispositivos emparejados</string>
+    <string name="str_dispositivos_disponibles">Dispositivos disponibles</string>
+</resources>
