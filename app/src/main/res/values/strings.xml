@@ -6,4 +6,6 @@
     
     <string name="str_dispositivos_emparejados">Dispositivos emparejados</string>
     <string name="str_dispositivos_disponibles">Dispositivos disponibles</string>
+
+    <string name="str_menu_scan_devices">Escanear dispositivos</string>
 </resources>

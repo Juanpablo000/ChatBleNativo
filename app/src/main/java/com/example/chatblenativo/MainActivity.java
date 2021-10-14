@@ -78,13 +78,13 @@ public class MainActivity extends AppCompatActivity {
                 new AlertDialog.Builder(context)
                         .setCancelable(false)
                         .setMessage("Permiso local es requerido. \n Por favor suministre permisos")
-                        .setPositiveButton("concedido", new DialogInterface.OnClickListener() {
+                        .setPositiveButton("Concedido", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialogInterface, int i) {
                                 revisarPermisos();
                             }
                         })
-                        .setNegativeButton("denegado", new DialogInterface.OnClickListener() {
+                        .setNegativeButton("Denegado", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialogInterface, int i) {
                                 MainActivity.this.finish();
@@ -97,10 +97,16 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void habilitarBluetooth(){
-        if(bluetoothAdapter.isEnabled()){
-            Toast.makeText(context, "Bluetooth ya esta activado", Toast.LENGTH_SHORT).show();
-        }else{
+        if(!bluetoothAdapter.isEnabled()){
             bluetoothAdapter.enable();
+        }else{
+            Toast.makeText(context, "Bluetooth ya esta activado", Toast.LENGTH_SHORT).show();
+        }
+
+        if(bluetoothAdapter.getScanMode() != BluetoothAdapter.SCAN_MODE_CONNECTABLE_DISCOVERABLE){
+            Intent discoveryIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
+            discoveryIntent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 300);
+            startActivity(discoveryIntent);
         }
     }
 }
