@@ -20,7 +20,14 @@ import android.os.Handler;
 import android.os.Message;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ListView;
 import android.widget.Toast;
+
+import java.nio.charset.StandardCharsets;
 
 public class MainActivity extends AppCompatActivity {
     private Context context;
@@ -29,6 +36,11 @@ public class MainActivity extends AppCompatActivity {
 
     private final int location_permission_request=101;
     private final int select_device =102;
+
+    private ListView listMainChat;
+    private EditText edCreateMessage;
+    private Button btnEnviarMensaje;
+    private ArrayAdapter<String> adapterMainChat;
 
     public static final int mensaje_estado_cambiado = 0;
     public static final int mensaje_lectura = 1;
@@ -62,8 +74,14 @@ public class MainActivity extends AppCompatActivity {
                     }
                     break;
                 case mensaje_lectura:
+                    byte[] buffer= (byte[]) message.obj;
+                    String inputBuffer = new String(buffer,0,message.arg1);
+                    adapterMainChat.add(dispositivoConectado + ": " + inputBuffer);
                     break;
                 case mensaje_escritura:
+                    byte[] buffer1 = (byte[]) message.obj;
+                    String outputBuffer = new String(buffer1);
+                    adapterMainChat.add("Yo: "+ outputBuffer);
                     break;
                 case mensaje_nombre_dispositivo:
                     dispositivoConectado = message.getData().getString(nombre_dispositivo);
@@ -87,8 +105,30 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         context = this;
 
+        init();
         initBluetooth();
         chatUtils = new ChatUtils(context, handler);
+    }
+
+    private void init(){
+        listMainChat = findViewById(R.id.list_conversaciones);
+        edCreateMessage = findViewById(R.id.ed_ingresar_mensaje);
+        btnEnviarMensaje = findViewById(R.id.btn_enviar_msg);
+
+        adapterMainChat = new ArrayAdapter<String>(context,R.layout.message_layout);
+        listMainChat.setAdapter(adapterMainChat);
+
+        btnEnviarMensaje.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String message = edCreateMessage.getText().toString();
+                if(!message.isEmpty()){
+                    edCreateMessage.setText("");
+                    chatUtils.write(message.getBytes());
+                }
+            }
+        });
+
     }
 
     private void initBluetooth(){

@@ -11,14 +11,17 @@ import android.os.Message;
 import android.util.Log;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.UUID;
 
 public class ChatUtils {
     private Context context;
     private final Handler handler;
     private BluetoothAdapter bluetoothAdapter;
-    private ConnectedThread connectedThread;
+    private ConnectThread connectThread;
     private AcceptThread acceptThread;
+    private ConnectedThread connectedThread;
 
     private final UUID app_uuid = UUID.fromString("fa87c0d0-afac-11de-8a39-0800200c9a66");
     private final String app_name="ChatBleNativo";
@@ -48,9 +51,9 @@ public class ChatUtils {
     }
 
     private synchronized void start(){
-        if(connectedThread != null){
-            connectedThread.cancel();
-            connectedThread = null;
+        if(connectThread != null){
+            connectThread.cancel();
+            connectThread = null;
         }
 
         if (acceptThread==null) {
@@ -58,18 +61,27 @@ public class ChatUtils {
             acceptThread.start();
         }
 
+        if(connectedThread!=null){
+            connectedThread.cancel();
+            connectedThread= null;
+        }
         setEstado(estado_escuchar);
     }
 
     public synchronized void stop(){
-        if(connectedThread != null){
-            connectedThread.cancel();
-            connectedThread=null;
+        if(connectThread != null){
+            connectThread.cancel();
+            connectThread=null;
         }
 
         if(acceptThread!=null){
             acceptThread.cancel();
             acceptThread=null;
+        }
+
+        if(connectedThread!=null){
+            connectedThread.cancel();
+            connectedThread= null;
         }
 
         setEstado(estado_none);
@@ -78,16 +90,33 @@ public class ChatUtils {
 
     public void connect(BluetoothDevice device){
         if(estado== estado_conectando){
-            connectedThread.cancel();
-            connectedThread=null;
+            connectThread.cancel();
+            connectThread=null;
         }
 
-        connectedThread = new ConnectedThread(device);
-        connectedThread.start();
+        connectThread = new ConnectThread(device);
+        connectThread.start();
+
+        if(connectedThread!=null){
+            connectedThread.cancel();
+            connectedThread= null;
+        }
 
         setEstado(estado_conectando);
     }
 
+    public void write(byte[] buffer){
+        ConnectedThread connThread;
+        synchronized (this){
+            if(estado!=estado_conectado){
+                return;
+            }
+
+            connThread=connectedThread;
+        }
+
+        connThread.write(buffer);
+    }
 
 
     private class AcceptThread extends Thread {
@@ -149,11 +178,11 @@ public class ChatUtils {
 
 
 
-    private class ConnectedThread extends Thread{
+    private class ConnectThread extends Thread{
         private final BluetoothSocket socket;
         private final BluetoothDevice device;
 
-        public ConnectedThread(BluetoothDevice device){
+        public ConnectThread(BluetoothDevice device){
             this.device = device;
 
             BluetoothSocket tmp = null;
@@ -182,10 +211,10 @@ public class ChatUtils {
             }
 
             synchronized (ChatUtils.this){
-                connectedThread =null;
+                connectThread =null;
             }
 
-            connected(device);
+            connected(socket,device);
         }
 
         public void cancel(){
@@ -197,6 +226,69 @@ public class ChatUtils {
         }
     }
 
+    private class ConnectedThread extends Thread{
+        private final BluetoothSocket socket;
+        private final InputStream inputStream;
+        private final OutputStream outputStream;
+
+        public ConnectedThread(BluetoothSocket socket){
+            this.socket= socket;
+
+            InputStream tmpIn = null;
+            OutputStream tmpOut= null;
+
+            try {
+                tmpIn = socket.getInputStream();
+                tmpOut = socket.getOutputStream();
+            }catch (IOException e){
+
+            }
+
+            inputStream=tmpIn;
+            outputStream=tmpOut;
+        }
+
+        public void run(){
+            byte[] buffer = new byte[1024];
+            int bytes;
+
+            try {
+                bytes = inputStream.read(buffer);
+
+                handler.obtainMessage(MainActivity.mensaje_lectura,bytes, -1, buffer).sendToTarget();
+            }catch (IOException e){
+                connectionLost();
+            }
+        }
+
+        public void write(byte[] buffer){
+            try {
+                outputStream.write(buffer);
+                handler.obtainMessage(MainActivity.mensaje_escritura,-1, -1,buffer).sendToTarget();
+
+            }catch (IOException e){
+
+            }
+        }
+
+        public void cancel(){
+            try {
+                socket.close();
+            }catch (IOException e){
+
+            }
+        }
+    }
+
+    private void connectionLost(){
+        Message message = handler.obtainMessage(MainActivity.mensaje_toast);
+        Bundle bundle = new Bundle();
+        bundle.putString(MainActivity.TOAST,"Conexión perdida");
+        message.setData(bundle);
+        handler.sendMessage(message);
+
+        ChatUtils.this.start();
+    }
 
     private synchronized void conexionfallida(){
         Message message = handler.obtainMessage(MainActivity.mensaje_toast);
@@ -207,11 +299,19 @@ public class ChatUtils {
         ChatUtils.this.start();
     }
 
-    private synchronized void connected(BluetoothDevice device){
-        if (connectedThread!=null){
-            connectedThread.cancel();
-            connectedThread=null;
+    private synchronized void connected(BluetoothSocket socket,BluetoothDevice device){
+        if (connectThread!=null){
+            connectThread.cancel();
+            connectThread=null;
         }
+
+        if(connectedThread!=null){
+            connectedThread.cancel();
+            connectedThread= null;
+        }
+
+        connectedThread = new ConnectedThread(socket);
+        connectedThread.start();
 
         Message message = handler.obtainMessage(MainActivity.mensaje_nombre_dispositivo);
         Bundle bundle = new Bundle();
