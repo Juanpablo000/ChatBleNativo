@@ -25,7 +25,7 @@ public class ChatUtils {
 
     public static final int estado_none = 0;
     public static final int estado_escuchar = 1;
-    public static final int estado_conectar = 2;
+    public static final int estado_conectando = 2;
     public static final int estado_conectado = 3;
 
     private int estado;
@@ -75,6 +75,21 @@ public class ChatUtils {
         setEstado(estado_none);
     }
 
+
+    public void connect(BluetoothDevice device){
+        if(estado== estado_conectando){
+            connectedThread.cancel();
+            connectedThread=null;
+        }
+
+        connectedThread = new ConnectedThread(device);
+        connectedThread.start();
+
+        setEstado(estado_conectando);
+    }
+
+
+
     private class AcceptThread extends Thread {
         private BluetoothServerSocket serverSocket;
 
@@ -107,7 +122,7 @@ public class ChatUtils {
             if(socket!=null){
                 switch (estado){
                     case estado_escuchar:
-                    case estado_conectar:
+                    case estado_conectando:
                         connect(socket.getRemoteDevice());
                         break;
                     case estado_none:;
@@ -121,7 +136,7 @@ public class ChatUtils {
                 }
             }
 
-    }
+        }
 
         public void cancel(){
             try {
@@ -130,21 +145,8 @@ public class ChatUtils {
                 Log.e("Aceptar->CloseSocket", e.toString());
             }
         }
-
-
     }
 
-    public void connect(BluetoothDevice device){
-        if(estado== estado_conectar){
-            connectedThread.cancel();
-            connectedThread=null;
-        }
-
-        connectedThread = new ConnectedThread(device);
-        connectedThread.start();
-
-        setEstado(estado_conectar);
-    }
 
 
     private class ConnectedThread extends Thread{
@@ -183,7 +185,7 @@ public class ChatUtils {
                 connectedThread =null;
             }
 
-            conectar(device);
+            connected(device);
         }
 
         public void cancel(){
@@ -199,13 +201,13 @@ public class ChatUtils {
     private synchronized void conexionfallida(){
         Message message = handler.obtainMessage(MainActivity.mensaje_toast);
         Bundle bundle = new Bundle();
-        bundle.putString(MainActivity.TOAST, "No se logro conectar a los dispositivos");
+        bundle.putString(MainActivity.TOAST, "No se logro conectar el dispositivo");
         message.setData(bundle);
         handler.sendMessage(message);
         ChatUtils.this.start();
     }
 
-    private synchronized void conectar(BluetoothDevice device){
+    private synchronized void connected(BluetoothDevice device){
         if (connectedThread!=null){
             connectedThread.cancel();
             connectedThread=null;

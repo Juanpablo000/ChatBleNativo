@@ -53,8 +53,8 @@ public class MainActivity extends AppCompatActivity {
                         case ChatUtils.estado_escuchar:
                             setEstado("No conectado");
                             break;
-                        case ChatUtils.estado_conectar:
-                            setEstado("Conectando");
+                        case ChatUtils.estado_conectando:
+                            setEstado("Conectando...");
                             break;
                         case ChatUtils.estado_conectado:
                             setEstado("Conectado: " + dispositivoConectado);
@@ -62,6 +62,8 @@ public class MainActivity extends AppCompatActivity {
                     }
                     break;
                 case mensaje_lectura:
+                    break;
+                case mensaje_escritura:
                     break;
                 case mensaje_nombre_dispositivo:
                     dispositivoConectado = message.getData().getString(nombre_dispositivo);
@@ -84,11 +86,9 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         context = this;
+
         initBluetooth();
-
         chatUtils = new ChatUtils(context, handler);
-
-
     }
 
     private void initBluetooth(){
