@@ -8,7 +8,6 @@
     <uses-permission android:name="android.permission.BLUETOOTH_ADVERTISE" />
     <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-
     <uses-permission android:name="android.permission.BLUETOOTH_SCAN" />
 
     <application
@@ -19,16 +18,22 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.ChatBleNativo">
         <activity
-            android:name=".ListaDispositivosActivity"
-            android:exported="true" />
-        <activity
-            android:name=".MainActivity"
+            android:name=".Inicio"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+        <activity
+            android:name=".acerca"
+            android:exported="true" />
+        <activity
+            android:name=".ListaDispositivosActivity"
+            android:exported="true" />
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"/>
         </activity>
     </application>
 

@@ -188,7 +188,7 @@ public class ChatUtils {
             BluetoothSocket tmp = null;
 
             try {
-                tmp=device.createInsecureRfcommSocketToServiceRecord(app_uuid);
+                tmp=device.createRfcommSocketToServiceRecord(app_uuid);
             }catch (IOException e){
                 Log.e("Conectado->constructor", e.toString());
             }
@@ -200,6 +200,7 @@ public class ChatUtils {
             try {
                 socket.connect();
             }catch (IOException e){
+                /*ERROR*/
                 Log.e("Conectado->Run", e.toString());
                 try {
                     socket.close();

@@ -153,9 +153,17 @@ public class MainActivity extends AppCompatActivity {
             case R.id.menu_enable_bluetooth:
                 habilitarBluetooth();
                 return true;
+            case R.id.menu_acercade:
+                acercaDe();
+                //return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+
+    public void acercaDe(){
+        Intent siguiente = new Intent(context, acerca.class);
+        startActivity(siguiente);
     }
 
     private void revisarPermisos(){

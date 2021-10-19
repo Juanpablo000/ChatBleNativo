@@ -12,4 +12,9 @@
         app:showAsAction="always"
         android:icon="@drawable/ic_baseline_bluetooth_24"
         android:title="@string/str_menu_bluetooth_on"/>
+
+    <item android:id="@+id/menu_acercade"
+        app:showAsAction="always"
+        android:icon="@drawable/ic_copyright"
+        android:title="@string/str_menu_acercade"/>
 </menu>

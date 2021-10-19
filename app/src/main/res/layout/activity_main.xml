@@ -22,13 +22,14 @@
             android:id="@+id/ed_ingresar_mensaje"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="100dp"/>
+            android:layout_marginEnd="100dp" />
+
         <Button
             android:id="@+id/btn_enviar_msg"
             android:layout_width="100dp"
             android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"
-            android:text="@string/str_label_btn_enviar"/>
+            android:text="@string/str_label_btn_enviar" />
     </RelativeLayout>
 
 </RelativeLayout>
