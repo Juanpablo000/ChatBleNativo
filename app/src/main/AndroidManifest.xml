@@ -18,13 +18,8 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.ChatBleNativo">
         <activity
-            android:name=".Inicio"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
+            android:name=".MainActivity"
+            android:exported="true" />
         <activity
             android:name=".acerca"
             android:exported="true" />
@@ -32,8 +27,13 @@
             android:name=".ListaDispositivosActivity"
             android:exported="true" />
         <activity
-            android:name=".MainActivity"
-            android:exported="true"/>
+            android:name=".Inicio"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
         </activity>
     </application>
 
